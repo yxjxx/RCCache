@@ -1,0 +1,11 @@
+use_frameworks!
+
+target 'RCCache_Example' do
+  pod 'RCCache', :path => '../'
+
+  target 'RCCache_Tests' do
+    inherit! :search_paths
+
+    
+  end
+end
