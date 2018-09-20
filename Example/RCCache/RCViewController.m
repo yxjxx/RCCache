@@ -28,7 +28,7 @@
     RCMemoryCache *memCache = self.memCache;
     memCache.countLimit = 1;
     memCache.costLimit = 10;
-    memCache.ageLimit = 6;
+//    memCache.ageLimit = 6;
     NSString *key = @"firstObjectKey";
     NSString *key2 = @"secondObjectKey";
     [memCache setObject:@"firstObject" forKey:key];
@@ -41,7 +41,8 @@
 }
 
 - (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
-    
+    self.memCache[@"secondObjectKey"] = @"2object";
+    id obj = self.memCache[@"secondObjectKey"];    
 }
 
 @end

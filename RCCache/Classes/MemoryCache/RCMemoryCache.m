@@ -148,6 +148,19 @@
     });
 }
 
+#pragma mark - RCCacheSubscriptingProtocol
+- (id)objectForKeyedSubscript:(id)key {
+    return [self objectForKey:key];
+}
+
+- (void)setObject:(id)object forKeyedSubscript:(id)key {
+    if (object == nil) {
+        [self removeObjectForKey:key];
+    } else {
+        [self setObject:object forKey:key];
+    }
+}
+
 - (id<RCMemCacheStrategyProtocol>)concreteCacher{
     if (_concreteCacher == nil) {
         _concreteCacher = [[RCMemCacheLRUStrategy alloc] init];

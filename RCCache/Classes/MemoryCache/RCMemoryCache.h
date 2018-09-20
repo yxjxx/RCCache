@@ -7,8 +7,9 @@
 
 #import <Foundation/Foundation.h>
 #import "RCMemCacheStrategyProtocol.h"
+#import "RCCacheSubscriptingProtocol.h"
 
-@interface RCMemoryCache : NSObject
+@interface RCMemoryCache : NSObject <RCCacheSubscriptingProtocol>
 
 ///> 具体实现缓存的策略类，任何实现 RCMemCacheStrategy 协议的类都可以，默认使用 RCMemCacheLRUStrategy
 @property (nonatomic, strong) id <RCMemCacheStrategyProtocol> concreteCacher;
