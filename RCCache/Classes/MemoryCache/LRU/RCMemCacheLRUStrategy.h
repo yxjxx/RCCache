@@ -6,19 +6,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RCMemCacheStrategy.h"
+#import "RCMemCacheStrategyProtocol.h"
+#import "RCMemCacheAbstractStrategy.h"
 
-@interface RCMemCacheLRUStrategy : NSObject <RCMemCacheStrategy>
-
-@property (nonatomic, assign, readonly) NSUInteger totalCount;
-@property (nonatomic, assign, readonly) NSUInteger totalCost;
-
-@property (nonatomic, assign) BOOL needReleaseOnMainThread;
-@property (nonatomic, assign) BOOL needAsyncRelease;
-
-- (void)trimToCount:(NSUInteger)count;
-- (void)trimToCost:(NSUInteger)cost;
-- (void)trimToAge:(NSTimeInterval)age;
-- (void)trimTailNodeIfOverCountLimit:(NSUInteger)countLimit;
+@interface RCMemCacheLRUStrategy : RCMemCacheAbstractStrategy <RCMemCacheStrategyProtocol>
+//从父类继承
+//@property (nonatomic, assign, readonly) NSUInteger totalCount;
+//@property (nonatomic, assign, readonly) NSUInteger totalCost;
+//@property (nonatomic, assign) BOOL needReleaseOnMainThread;
+//@property (nonatomic, assign) BOOL needAsyncRelease;
 
 @end

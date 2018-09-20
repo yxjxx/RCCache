@@ -42,6 +42,6 @@
  iOS 保持界面流畅的技巧： https://blog.ibireme.com/2015/11/12/smooth_user_interfaces_for_ios/
  在后台线程销毁对象
  */
-- (void)holdAndReleaseInQueue:(id)obj;
+- (void)holdAndReleaseOnQBgQueue:(id)obj;
 
 @end

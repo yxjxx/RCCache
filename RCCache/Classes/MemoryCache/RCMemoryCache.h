@@ -6,12 +6,12 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RCMemCacheStrategy.h"
+#import "RCMemCacheStrategyProtocol.h"
 
 @interface RCMemoryCache : NSObject
 
 ///> 具体实现缓存的策略类，任何实现 RCMemCacheStrategy 协议的类都可以，默认使用 RCMemCacheLRUStrategy
-@property (nonatomic, strong) id <RCMemCacheStrategy> concreteCacher;
+@property (nonatomic, strong) id <RCMemCacheStrategyProtocol> concreteCacher;
 
 @property (nonatomic, assign, readonly) NSUInteger totalCount;
 @property (nonatomic, assign, readonly) NSUInteger totalCost;

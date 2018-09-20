@@ -135,7 +135,7 @@
     return node;
 }
 
-- (void)holdAndReleaseInQueue:(id)obj {
+- (void)holdAndReleaseOnQBgQueue:(id)obj {
     id holder = obj;
     //1. async release 2. need release on main thread 3. is current on main thread
     if (_needAsyncRelease) {

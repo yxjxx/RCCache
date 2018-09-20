@@ -247,7 +247,7 @@
 			isa = PBXProject;
 			attributes = {
 				CLASSPREFIX = RC;
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 1000;
 				ORGANIZATIONNAME = rico;
 				TargetAttributes = {
 					6003F589195388D20070C39A = {

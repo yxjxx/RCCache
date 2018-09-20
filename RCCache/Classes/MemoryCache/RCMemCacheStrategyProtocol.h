@@ -11,11 +11,10 @@
 /**
  Memory cache abstract Strategy
  */
-@protocol RCMemCacheStrategy <NSObject>
+@protocol RCMemCacheStrategyProtocol <NSObject>
 
 @property (nonatomic, assign, readonly) NSUInteger totalCount;
 @property (nonatomic, assign, readonly) NSUInteger totalCost;
-
 @property (nonatomic, assign) BOOL needReleaseOnMainThread;
 @property (nonatomic, assign) BOOL needAsyncRelease;
 
@@ -27,6 +26,7 @@
 - (void)removeObjectForKey:(id)key;
 - (void)removeAllObjects;
 
+#pragma mark - Trim
 - (void)trimToCount:(NSUInteger)countLimit;
 - (void)trimToCost:(NSUInteger)costLimit;
 - (void)trimToAge:(NSTimeInterval)ageLimit;

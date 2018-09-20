@@ -95,7 +95,7 @@
     _RCLinkedMapNode *node = [_lru nodeForKey:key];
     if (node) {
         [_lru removeNode:node];
-        [_lru holdAndReleaseInQueue:node];//trying, need verify
+        [_lru holdAndReleaseOnQBgQueue:node];//trying, need verify
     }
     [self unlock];
 }
@@ -255,7 +255,7 @@
     [self lock];
     if (_lru->_totalCount > countLimit) {
         _RCLinkedMapNode *node = [_lru removeTailNode];
-        [_lru holdAndReleaseInQueue:node];//need verify
+        [_lru holdAndReleaseOnQBgQueue:node];//need verify
     }
     [self unlock];
 }

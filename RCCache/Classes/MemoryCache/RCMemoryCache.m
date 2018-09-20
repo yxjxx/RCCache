@@ -148,12 +148,11 @@
     });
 }
 
-- (id<RCMemCacheStrategy>)concreteCacher{
+- (id<RCMemCacheStrategyProtocol>)concreteCacher{
     if (_concreteCacher == nil) {
         _concreteCacher = [[RCMemCacheLRUStrategy alloc] init];
     }
     return _concreteCacher;
 }
-
 
 @end
