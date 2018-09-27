@@ -12,7 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 /**
- 内存缓存的抽象策略基类，不做具体实现，不要直接使用这个类
+ 内存缓存的抽象策略基类，不做具体实现，不要直接使用这个类，一般不推荐外部继承这个类，导致影响范围不可控制
  */
 @interface RCMemCacheAbstractStrategy : NSObject <RCMemCacheStrategyProtocol>
 

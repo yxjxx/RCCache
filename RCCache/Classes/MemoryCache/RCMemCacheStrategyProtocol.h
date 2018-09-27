@@ -7,7 +7,6 @@
 
 #import <Foundation/Foundation.h>
 
-
 /**
  Memory cache abstract Strategy
  */

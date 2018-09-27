@@ -78,14 +78,6 @@
         node->_value = object;
         [_lru insertNodeAtHead:node];
     }
-    //check if over costLimit
-//    if (_lru->_totalCost > ) {
-//        <#statements#>
-//    }
-    //check if over countLimit
-//    if (_lru->_totalCount > _countLimit) {
-//
-//    }
     [self unlock];
 }
 
