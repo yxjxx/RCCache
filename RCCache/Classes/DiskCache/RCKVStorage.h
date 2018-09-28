@@ -48,12 +48,12 @@ typedef NS_ENUM(NSUInteger, RCKVStorageType) {
            extendedData:(nullable NSData *)extendedData;
 
 #pragma mark - remove
-- (BOOL)removeitemForKey:(NSString *)key;
+- (BOOL)removeItemForKey:(NSString *)key;
 - (BOOL)removeItemForKyes:(NSArray<NSString *> *)keys;
 - (BOOL)removeItemsLargerThanSize:(int)size;
-- (BOOL)remvoeItemsEarlierThanTime:(int)time;
+- (BOOL)removeItemsEarlierThanTime:(int)time;
 - (BOOL)removeItemsToFitSize:(int)maxSize;
-- (BOOL)remveItemsToFitCount:(int)maxCount;
+- (BOOL)removeItemsToFitCount:(int)maxCount;
 - (BOOL)removeAllItems;
 - (void)removeAllItemsWithProgressBlock:(nullable void(^)(int removedCount, int totalCount))progress endBlock:(nullable void(^)(BOOL error))end;
 

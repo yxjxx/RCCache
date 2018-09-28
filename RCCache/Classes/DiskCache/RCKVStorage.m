@@ -750,4 +750,344 @@ static UIApplication *_RCSharedApplication() {
     return self;
 }
 
+- (void)dealloc {
+    UIBackgroundTaskIdentifier taskID = [_RCSharedApplication() beginBackgroundTaskWithExpirationHandler:^{}];
+    [self _dbClose];
+    if (taskID != UIBackgroundTaskInvalid) {
+        [_RCSharedApplication() endBackgroundTask:taskID];
+    }
+}
+
+- (BOOL)saveItem:(RCKVStorageItem *)item {
+    return [self saveItemWithKey:item.key value:item.value filename:item.filename extendedData:item.extendedData];
+}
+
+- (BOOL)saveItemWithKey:(NSString *)key value:(NSData *)value {
+    return [self saveItemWithKey:key value:value filename:nil  extendedData:nil];
+}
+
+///> if valid filename, need store data to file
+- (BOOL)saveItemWithKey:(NSString *)key value:(NSData *)value filename:(NSString *)filename extendedData:(NSData *)extendedData {
+    if (key.length == 0 || value.length == 0) return NO;
+    
+    if (_type == RCKVStorageTypeFile && filename.length == 0) return NO;
+    
+    if (filename.length) {
+        if (![self _fileWriteWithName:filename data:value]) {
+            return NO;
+        }
+        if (![self _dbSaveWithKey:key value:value fileName:filename extendedData:extendedData]) {
+            [self _fileDeleteWithName:filename];
+            return NO;
+        }
+        return YES;
+    } else {
+        if (_type != RCKVStorageTypeSQLite) {
+            NSString *filename = [self _dbGetFilenameWithKey:key];
+            if (filename) {
+                [self _fileDeleteWithName:filename];
+            }
+        }
+        return [self _dbSaveWithKey:key value:value fileName:nil extendedData:extendedData];
+    }
+}
+
+- (BOOL)removeItemForKey:(NSString *)key {
+    if (key.length == 0) return NO;
+    switch (_type) {
+        case RCKVStorageTypeSQLite: {
+            return [self _dbDeleteItemWithKey:key];
+        } break;
+        case RCKVStorageTypeFile:
+        case RCKVStorageTypeMixed: {
+            NSString *filename = [self _dbGetFilenameWithKey:key];
+            if (filename) {
+                [self _fileDeleteWithName:filename];
+            }
+            return [self _dbDeleteItemWithKey:key];
+        } break;
+        default: return NO;
+    }
+}
+
+- (BOOL)removeItemForKyes:(NSArray<NSString *> *)keys {
+    if (keys.count == 0) return NO;
+    switch (_type) {
+        case RCKVStorageTypeSQLite:{
+            return [self _dbDeleteItemWithKeys:keys];
+        } break;
+        case RCKVStorageTypeFile:
+        case RCKVStorageTypeMixed: {
+            NSArray *filenames = [self _dbGetFilenamesWithKeys:keys];
+            for (NSString *filename in filenames) {
+                [self _fileDeleteWithName:filename];
+            }
+            return [self _dbGetFilenamesWithKeys:keys];
+        } break;
+        default: return NO;
+    }
+}
+
+- (BOOL)removeItemsLargerThanSize:(int)size {
+    if (size == INT_MAX) return YES;
+    if (size <= 0) return [self removeAllItems];
+    
+    switch (_type) {
+        case RCKVStorageTypeSQLite: {
+            if ([self _dbDeleteItemsWithSizeLargerThan:size]) {
+                [self _dbCheckpoint];
+                return YES;
+            }
+        } break;
+        case RCKVStorageTypeFile:
+        case RCKVStorageTypeMixed: {
+            NSArray *filenames = [self _dbGetFilenamesWithSizeLargerThan:size];
+            for (NSString *name in filenames) {
+                [self _fileDeleteWithName:name];
+            }
+            if ([self _dbDeleteItemsWithSizeLargerThan:size]) {
+                [self _dbCheckpoint];
+                return YES;
+            }
+        } break;
+    }
+    return NO;
+}
+
+- (BOOL)removeItemsEarlierThanTime:(int)time {
+    if (time <= 0) return YES;
+    if (time == INT_MAX) return [self removeAllItems];
+    
+    switch (_type) {
+        case RCKVStorageTypeSQLite: {
+            if ([self _dbDeleteItemsWithTimeEarlierThan:time]) {
+                [self _dbCheckpoint];
+                return YES;
+            }
+        } break;
+        case RCKVStorageTypeFile:
+        case RCKVStorageTypeMixed: {
+            NSArray *filenames = [self _dbGetFilenamesWithTimeEarlierThan:time];
+            for (NSString *name in filenames) {
+                [self _fileDeleteWithName:name];
+            }
+            if ([self _dbDeleteItemsWithTimeEarlierThan:time]) {
+                [self _dbCheckpoint];
+                return YES;
+            }
+        } break;
+    }
+    return NO;
+}
+
+- (BOOL)removeItemsToFitSize:(int)maxSize {
+    if (maxSize == INT_MAX) return YES;
+    if (maxSize <= 0) return [self removeAllItems];
+    
+    int total = [self _dbGetTotalItemSize];
+    if (total < 0) return NO;
+    if (total < maxSize) return YES;
+    
+    NSArray *items = nil;
+    BOOL success = NO;
+    do {
+        int perCount = 16;
+        items = [self _dbGetItemSizeInfoOrderByTimeAscWithLimit:perCount];
+        for (RCKVStorageItem *item in items) {
+            if (total > maxSize) {
+                if (item.filename) {
+                    [self _fileDeleteWithName:item.filename];
+                }
+                success = [self _dbDeleteItemWithKey:item.key];
+                total -= item.size;
+            } else {
+                break;
+            }
+            if (!success) break;
+        }
+    } while (total > maxSize && items.count > 0 && success);
+    return success;
+}
+
+- (BOOL)removeItemsToFitCount:(int)maxCount {
+    if (maxCount == INT_MAX) return YES;
+    if (maxCount <= 0) return [self removeAllItems];
+    
+    int total = [self _dbGetTotalItemCount];
+    if (total < 0) return NO;
+    if (total <= maxCount) return YES;
+    
+    NSArray *items = nil;
+    BOOL success = NO;
+    do {
+        int perCount = 16;
+        items = [self _dbGetItemSizeInfoOrderByTimeAscWithLimit:perCount];
+        for (RCKVStorageItem *item in items) {
+            if (total > maxCount) {
+                if (item.filename) {
+                    [self _fileDeleteWithName:item.filename];
+                }
+                success = [self _dbDeleteItemWithKey:item.key];
+                total--;
+            } else {
+                break;
+            }
+            if (!success) break;
+        }
+    } while (total > maxCount && items.count > 0 && success);
+    if (success) [self _dbCheckpoint];
+    return success;
+}
+
+- (BOOL)removeAllItems {
+    if (![self _dbClose]) return NO;
+    [self _reset];
+    if (![self _dbOpen]) return NO;
+    if (![self _dbInitialize]) return NO;
+    return YES;
+}
+
+- (void)removeAllItemsWithProgressBlock:(void (^)(int, int))progress endBlock:(void (^)(BOOL))end {
+    int total = [self _dbGetTotalItemCount];
+    if (total <= 0) {
+        if (end) {
+            BOOL b = (total < 0);
+            end(b);
+        }
+    } else {
+        int left = total;
+        int perCount = 32;
+        NSArray *items = nil;
+        BOOL success = NO;
+        do {
+            items = [self _dbGetItemSizeInfoOrderByTimeAscWithLimit:perCount];
+            for (RCKVStorageItem *item in items) {
+                if (left > 0) {
+                    if (item.filename) {
+                        [self _fileDeleteWithName:item.filename];
+                    }
+                    success = [self _dbDeleteItemWithKey:item.key];
+                    left--;
+                } else {
+                    break;
+                }
+                if (!success) break;
+            }
+            if (progress) progress(total - left, total);
+        } while (left > 0 && items.count >0 && success);
+        if (success) [self _dbCheckpoint];
+        if (end) end(!success); //BOOL error
+    }
+}
+
+- (RCKVStorageItem *)getItemForKey:(NSString *)key {
+    if (key.length == 0) return nil;
+    RCKVStorageItem *item = [self _dbGetItemWithKey:key excludeInlineData:NO];
+    if (item) {
+        [self _dbUpdateAccessTimeWithKey:key];
+        if (item.filename) {
+            item.value = [self _fileReadWithName:item.filename];
+            if (!item.value) {
+                [self _dbDeleteItemWithKey:key];
+                item = nil;
+            }
+        }
+    }
+    return item;
+}
+
+- (RCKVStorageItem *)getItemInfoForKey:(NSString *)key {
+    if (key.length == 0) return nil;
+    RCKVStorageItem *item = [self _dbGetItemWithKey:key excludeInlineData:YES];
+    return item;
+}
+
+- (NSData *)getItemValueForKey:(NSString *)key {
+    if (key.length == 0) return nil;
+    NSData *value = nil;
+    switch (_type) {
+        case RCKVStorageTypeFile: {
+            NSString *filename = [self _dbGetFilenameWithKey:key];
+            if (filename) {
+                value = [self _fileReadWithName:filename];
+                if (!value) {
+                    [self _dbDeleteItemWithKey:key];
+                    value = nil;
+                }
+            }
+        } break;
+        case RCKVStorageTypeSQLite: {
+            value = [self _dbGetValueWithKey:key];
+        } break;
+        case RCKVStorageTypeMixed: {
+            NSString *filename = [self _dbGetFilenameWithKey:key];
+            if (filename) {
+                value = [self _fileReadWithName:filename];
+                if (!value) {
+                    [self _dbDeleteItemWithKey:key];
+                    value = nil;
+                }
+            } else {
+                value = [self _dbGetValueWithKey:key];
+            }
+        } break;
+    }
+    if (value) {
+        [self _dbUpdateAccessTimeWithKey:key];
+    }
+    return value;
+}
+
+- (NSArray *)getItemForKeys:(NSArray *)keys {
+    if (keys.count == 0) return nil;
+    NSMutableArray *items = [self _dbGetItemWithKeys:keys excludeInlineData:NO];
+    if (_type != RCKVStorageTypeSQLite) {
+        for (NSInteger i = 0, max = items.count; i < max; i++) {
+            RCKVStorageItem *item = items[i];
+            if (item.filename) {
+                item.value = [self _fileReadWithName:item.filename];
+                if (!item.value) {
+                    if(!item.key) [self _dbDeleteItemWithKey:item.key];
+                    [items removeObjectAtIndex:i];
+                    i--;
+                    max--;
+                }
+            }
+        }
+    }
+    if (items.count > 0) {
+        [self _dbUpdateAccessTimeWithKeys:keys];
+    }
+    return items.count ? items : nil;
+}
+
+- (NSArray *)getItemInfoForKeys:(NSArray *)keys {
+    if (keys.count == 0) return nil;
+    return [self _dbGetItemWithKeys:keys excludeInlineData:YES];
+}
+
+- (NSDictionary *)getItemValueForKeys:(NSArray *)keys {
+    NSMutableArray *items = (NSMutableArray *)[self getItemForKeys:keys];
+    NSMutableDictionary *kv = [NSMutableDictionary new];
+    for (RCKVStorageItem *item in items) {
+        if (item.key && item.value) {
+            [kv setValue:item.value forKey:item.key];
+        }
+    }
+    return kv.count ? kv : nil;
+}
+
+- (BOOL)itemExistsForKey:(NSString *)key {
+    if (key.length == 0) return NO;
+    return [self _dbGetItemCountWithKey:key] > 0;
+}
+
+- (int)getItemsCount {
+    return [self _dbGetTotalItemCount];
+}
+
+- (int)getItemsSize {
+    return [self _dbGetTotalItemSize];
+}
+
 @end
