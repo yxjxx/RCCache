@@ -1,5 +1,5 @@
 //
-//  RCDiskCacheStrategyProtocol.h
+//  RCDiskCacheAbstractStrategy.h
 //  RCCache
 //
 //  Created by yxj on 2018/9/28.
@@ -9,7 +9,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@protocol RCDiskCacheStrategyProtocol <NSObject>
+@interface RCDiskCacheAbstractStrategy : NSObject
 
 @end
 
