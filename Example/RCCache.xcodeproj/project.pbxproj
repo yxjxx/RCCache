@@ -67,6 +67,7 @@
 		9F635774A45935F4A4B58864 /* RCCache.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = RCCache.podspec; path = ../RCCache.podspec; sourceTree = "<group>"; };
 		B47D20B87DFF89BE8986D914 /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		BD416EAF097A6CE7856CC976 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
+		DE1B570D216A107A00642F98 /* YYCache.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = YYCache.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -119,6 +120,7 @@
 		6003F58C195388D20070C39A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				DE1B570D216A107A00642F98 /* YYCache.framework */,
 				6003F58D195388D20070C39A /* Foundation.framework */,
 				6003F58F195388D20070C39A /* CoreGraphics.framework */,
 				6003F591195388D20070C39A /* UIKit.framework */,
@@ -374,10 +376,12 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-RCCache_Example/Pods-RCCache_Example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/RCCache/RCCache.framework",
+				"${BUILT_PRODUCTS_DIR}/YYCache/YYCache.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/RCCache.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/YYCache.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;

@@ -1,5 +1,6 @@
 PODS:
-  - RCCache (0.1.0)
+  - RCCache (0.1.0):
+    - YYCache (~> 1.0)
   - YYCache (1.0.4)
 
 DEPENDENCIES:
@@ -11,7 +12,7 @@ EXTERNAL SOURCES:
     :path: ../
 
 SPEC CHECKSUMS:
-  RCCache: fac6e456e1758c6b68d10daf87e331fde9f9a3d9
+  RCCache: af0b39a91e2e7549b403678e8a1eb5c69c12a9e4
   YYCache: 8105b6638f5e849296c71f331ff83891a4942952
 
 PODFILE CHECKSUM: 33543c42bcb017d5f6877f01271caf622d09b1ef
