@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface RCDiskCacheLRUStrategy : RCDiskCacheAbstractStrategy <RCDiskCacheStrategyProtocol>
 
+
 @end
 
 NS_ASSUME_NONNULL_END

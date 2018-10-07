@@ -1038,7 +1038,7 @@ static UIApplication *_RCSharedApplication() {
     return value;
 }
 
-- (NSArray *)getItemForKeys:(NSArray *)keys {
+- (NSArray *)getItemsForKeys:(NSArray *)keys {
     if (keys.count == 0) return nil;
     NSMutableArray *items = [self _dbGetItemWithKeys:keys excludeInlineData:NO];
     if (_type != RCKVStorageTypeSQLite) {
@@ -1067,7 +1067,7 @@ static UIApplication *_RCSharedApplication() {
 }
 
 - (NSDictionary *)getItemValueForKeys:(NSArray *)keys {
-    NSMutableArray *items = (NSMutableArray *)[self getItemForKeys:keys];
+    NSMutableArray *items = (NSMutableArray *)[self getItemsForKeys:keys];
     NSMutableDictionary *kv = [NSMutableDictionary new];
     for (RCKVStorageItem *item in items) {
         if (item.key && item.value) {

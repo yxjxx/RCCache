@@ -6,12 +6,13 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "RCCachingProtocol.h"
 #import "RCMemoryCache.h"
 #import "RCDiskCache.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RCCache : NSObject
+@interface RCCache : NSObject <RCCachingProtocol>
 
 @property (nonatomic, copy, readonly) NSString *name;
 

@@ -168,4 +168,10 @@
     return _concreteCacher;
 }
 
+- (NSString *)description {
+    if (_name) return [NSString stringWithFormat:@"<%@: %p> (%@)", self.class, self, _name];
+    else return [NSString stringWithFormat:@"<%@: %p>", self.class, self];
+}
+
+
 @end
